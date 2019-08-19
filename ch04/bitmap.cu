@@ -6,7 +6,7 @@ struct cuComplex
     float r_;
     float i_;
 
-    cuComplex(float r, float i) : r_(r), i_(i) {}
+    __device__ cuComplex(float r, float i) : r_(r), i_(i) {}
 
     __device__ float magnitude() { return r_*r_ + i_*i_; }
 
@@ -56,10 +56,14 @@ __global__ void kernel(unsigned char* ptr)
 int main()
 {
     CPUBitmap bitmap(DIM, DIM);
-    unsigned int 
-    unsigned char* ptr = bitmap.get_ptr();
+    unsigned char* dev_bitmap; 
 
-    kernel(ptr);
+    cudaMalloc((void**)&dev_bitmap, bitmap.image_size());
+
+    dim3 grid(DIM, DIM);
+    kernel<<<grid, 1>>>(dev_bitmap);
+
+    cudaMemcpy(bitmap.get_ptr(), dev_bitmap, bitmap.image_size(), cudaMemcpyDeviceToHost);
 
     bitmap.display_and_exit();
 
