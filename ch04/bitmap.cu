@@ -67,6 +67,8 @@ int main()
 
     bitmap.display_and_exit();
 
+    cudaFree(dev_bitmap);
+
     return 0;
 }
 
